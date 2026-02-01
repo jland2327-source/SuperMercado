@@ -77,19 +77,27 @@
         /* Logo refinements */
         .logo-badge {
             background: white;
-            padding: 3px;
-            border-radius: 14px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 2px solid #ef4444; /* red border to match brand */
+            padding: 2px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1.5px solid #ef4444;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (min-width: 768px) {
+            .logo-badge {
+                padding: 3px;
+                border-radius: 14px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                border-width: 2px;
+            }
         }
         .dark .logo-badge {
             background: #fff;
-            border-color: #10b981; /* emerald in dark mode for contrast */
+            border-color: #10b981;
         }
         .group:hover .logo-badge {
             transform: scale(1.1) rotate(-3deg);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -105,17 +113,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 md:h-20">
                 <!-- Logo -->
-                <button id="nav-logo" class="flex items-center gap-3 group text-left outline-none">
-                    <div class="logo-badge overflow-hidden">
+                <button id="nav-logo" class="flex items-center gap-2 md:gap-3 group text-left outline-none">
+                    <div class="logo-badge overflow-hidden shrink-0">
                         <img src="https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/595909845_122149701818714117_1815187123886970171_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=yYMfILgCI8AQ7kNvwG-MNZy&_nc_oc=AdlFs4V68GZimR8djDxmrPAg9oTEE6iA6wvXsnrOlo8QJ4JOU_BqjaAzwTDuN_SQ-aQuS1R4m2gQEnrCV7oN4S14&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=_-icd7mdo4Cu4hS36g5W5A&oh=00_AfsYcEKUfT8bBuKu3Syre0LGLT9dTahLMdobDFyeSnYzkA&oe=69859E42" 
-                             class="h-10 md:h-14 w-auto rounded-lg object-contain" 
+                             class="h-8 md:h-14 w-auto rounded-lg object-contain" 
                              alt="Supermercado Logo">
                     </div>
-                    <div class="hidden sm:flex flex-col -space-y-1">
-                        <span class="text-[9px] uppercase tracking-[0.4em] font-black text-emerald-800 dark:text-emerald-500 leading-none">Jalisciense</span>
+                    <div class="flex flex-col -space-y-1">
+                        <span class="text-[7px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.4em] font-black text-emerald-800 dark:text-emerald-500 leading-none">Jalisciense</span>
                         <div class="flex items-baseline">
-                            <span class="text-xl font-black tracking-tighter text-emerald-700 dark:text-emerald-400">SUPER</span>
-                            <span class="text-xl font-black tracking-tighter text-red-600 dark:text-red-500">MERCADO</span>
+                            <span class="text-xs md:text-xl font-black tracking-tighter text-emerald-700 dark:text-emerald-400">SUPER</span>
+                            <span class="text-xs md:text-xl font-black tracking-tighter text-red-600 dark:text-red-500">MERCADO</span>
                         </div>
                     </div>
                 </button>
@@ -148,11 +156,11 @@
                 </nav>
 
                 <!-- Mobile Quick Toggles -->
-                <div class="md:hidden flex items-center gap-2">
-                    <button id="theme-toggle-mobile" class="p-2.5 text-zinc-500 dark:text-zinc-400 active:scale-90 transition-transform">
-                        <i id="theme-icon-mobile" class="fa-solid fa-moon text-lg"></i>
+                <div class="md:hidden flex items-center gap-1">
+                    <button id="theme-toggle-mobile" class="p-2 text-zinc-500 dark:text-zinc-400 active:scale-90 transition-transform">
+                        <i id="theme-icon-mobile" class="fa-solid fa-moon text-base"></i>
                     </button>
-                    <button id="lang-toggle-mobile" class="bg-emerald-700 text-white px-4 py-1.5 rounded-full font-bold text-xs shadow-sm active:scale-90 transition-transform">
+                    <button id="lang-toggle-mobile" class="bg-emerald-700 text-white px-3 py-1 rounded-full font-bold text-[10px] shadow-sm active:scale-90 transition-transform">
                         <span id="lang-text-mobile">ES</span>
                     </button>
                 </div>
@@ -701,9 +709,9 @@
             <div class="grid md:grid-cols-4 gap-12 md:gap-16 mb-16">
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center gap-3 mb-6 md:mb-8 group">
-                        <div class="logo-badge !p-1.5 shadow-2xl bg-white border-4 border-emerald-500">
+                        <div class="logo-badge !p-1 shadow-2xl bg-white border-2 md:border-4 border-emerald-500">
                             <img src="https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/595909845_122149701818714117_1815187123886970171_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=yYMfILgCI8AQ7kNvwG-MNZy&_nc_oc=AdlFs4V68GZimR8djDxmrPAg9oTEE6iA6wvXsnrOlo8QJ4JOU_BqjaAzwTDuN_SQ-aQuS1R4m2gQEnrCV7oN4S14&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=_-icd7mdo4Cu4hS36g5W5A&oh=00_AfsYcEKUfT8bBuKu3Syre0LGLT9dTahLMdobDFyeSnYzkA&oe=69859E42" 
-                                 class="h-20 md:h-28 w-auto rounded-lg shadow-inner brightness-110" 
+                                 class="h-16 md:h-28 w-auto rounded-lg shadow-inner brightness-110" 
                                  alt="Supermercado Logo">
                         </div>
                     </div>
