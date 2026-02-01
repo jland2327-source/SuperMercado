@@ -1,61 +1,147 @@
-
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="es" class="scroll-smooth dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Supermercado - Tu Tienda Mexicana</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            950: '#022c22',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; }
         .page-content { display: none; }
-        .page-content.active { display: block; animation: fadeIn 0.5s ease-out; }
+        .page-content.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+        
+        .hero-banner {
+            position: relative;
+            height: 50vh;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+        @media (min-width: 768px) {
+            .hero-banner { height: 65vh; background-attachment: fixed; }
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
+        }
+        .content-section {
+            padding-top: 3rem;
+            padding-bottom: 5rem;
+        }
+        @media (min-width: 768px) {
+            .content-section { padding-top: 5rem; padding-bottom: 8rem; }
+        }
+        
+        /* Safe area for bottom nav on mobile */
+        @media (max-width: 767px) {
+            body { padding-bottom: 80px; }
+        }
 
-    <!-- NAVIGATION -->
-    <header class="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        /* Active state for bottom nav */
+        .mobile-nav-active {
+            color: #10b981 !important; /* emerald-500 */
+        }
+        .mobile-nav-active i {
+            transform: translateY(-4px);
+            transition: transform 0.2s ease;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen flex flex-col relative">
+
+    <!-- Mobile Floating CTA -->
+    <a href="tel:8642361445" class="md:hidden fixed bottom-24 right-4 z-[60] bg-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl shadow-red-900/40 active:scale-90 transition-transform">
+        <i class="fa-solid fa-phone text-xl"></i>
+    </a>
+
+    <!-- NAVIGATION (TOP) -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-zinc-800 shadow-sm transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex justify-between items-center h-16 md:h-20">
                 <!-- Logo -->
-                <button onclick="navigateTo('home')" class="flex items-center hover:opacity-80 transition-opacity">
-                    <span class="text-2xl font-extrabold text-emerald-700 tracking-tighter">SUPER</span>
-                    <span class="text-2xl font-extrabold text-red-600 tracking-tighter">MERCADO</span>
+                <button id="nav-logo" class="flex items-center gap-2 group text-left outline-none">
+                    <div class="relative w-9 h-9 md:w-11 md:h-11 bg-emerald-700 dark:bg-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/20 group-hover:scale-110 transition-all duration-300">
+                        <i class="fa-solid fa-leaf text-white text-base md:text-xl"></i>
+                    </div>
+                    <div class="flex flex-col -space-y-1">
+                        <span class="text-[7px] md:text-[9px] uppercase tracking-[0.3em] font-black text-emerald-800 dark:text-emerald-500 leading-none">Jalisciense</span>
+                        <div class="flex items-baseline">
+                            <span class="text-lg md:text-2xl font-black tracking-tighter text-emerald-700 dark:text-emerald-400">SUPER</span>
+                            <span class="text-lg md:text-2xl font-black tracking-tighter text-red-600 dark:text-red-500">MERCADO</span>
+                        </div>
+                    </div>
                 </button>
 
                 <!-- Desktop Nav -->
-                <nav class="hidden md:flex space-x-10 items-center">
-                    <button onclick="navigateTo('home')" class="nav-link font-semibold text-gray-600 hover:text-emerald-700 transition-colors" data-i18n="nav_home">Home</button>
-                    <button onclick="navigateTo('about')" class="nav-link font-semibold text-gray-600 hover:text-emerald-700 transition-colors" data-i18n="nav_about">About</button>
-                    <button onclick="navigateTo('products')" class="nav-link font-semibold text-gray-600 hover:text-emerald-700 transition-colors" data-i18n="nav_products">Products</button>
-                    <button onclick="navigateTo('location')" class="nav-link font-semibold text-gray-600 hover:text-emerald-700 transition-colors" data-i18n="nav_location">Location</button>
-                    <button onclick="navigateTo('contact')" class="nav-link font-semibold text-gray-600 hover:text-emerald-700 transition-colors" data-i18n="nav_contact">Contact</button>
+                <nav class="hidden md:flex space-x-6 items-center">
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="home" data-i18n="nav_home">Home</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="about" data-i18n="nav_about">About</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="products" data-i18n="nav_products">Products</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="taqueria" data-i18n="nav_taqueria">Taquería</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="testimonials" data-i18n="nav_testimonials">Testimonials</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="location" data-i18n="nav_location">Location</button>
+                    <button class="nav-link-desktop font-semibold text-gray-600 dark:text-zinc-400 hover:text-emerald-700" data-page="contact" data-i18n="nav_contact">Contact</button>
                     
-                    <div class="h-6 w-px bg-gray-200"></div>
+                    <div class="h-6 w-px bg-gray-200 dark:bg-zinc-700 mx-2"></div>
 
-                    <button id="lang-toggle" onclick="toggleLanguage()" class="flex items-center gap-2 bg-emerald-700 text-white px-5 py-2 rounded-full hover:bg-emerald-800 transition-all font-bold text-sm shadow-md">
-                        <i class="fa-solid fa-language text-lg"></i>
-                        <span id="lang-text">ES</span>
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="tel:8642361445" class="hidden lg:flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-full hover:bg-red-700 transition-all font-bold text-sm shadow-md active:scale-95">
+                            <i class="fa-solid fa-phone"></i>
+                            <span data-i18n="hero_call">Call Now</span>
+                        </a>
+                        <button id="theme-toggle" class="p-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:scale-110 active:scale-95 transition-all shadow-inner">
+                            <i id="theme-icon" class="fa-solid fa-moon"></i>
+                        </button>
+                        <button id="lang-toggle" class="flex items-center gap-2 bg-emerald-700 dark:bg-emerald-600 text-white px-5 py-2 rounded-full hover:bg-emerald-800 transition-all font-bold text-sm shadow-md active:scale-95">
+                            <i class="fa-solid fa-language text-lg"></i>
+                            <span id="lang-text">ES</span>
+                        </button>
+                    </div>
                 </nav>
 
-                <!-- Mobile Nav Icons -->
-                <div class="md:hidden flex items-center gap-4">
-                    <button onclick="toggleLanguage()" class="bg-emerald-700 text-white px-3 py-1.5 rounded-full font-bold text-xs">
+                <!-- Mobile Quick Toggles -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button id="theme-toggle-mobile" class="p-2.5 text-zinc-500 dark:text-zinc-400 active:scale-90 transition-transform">
+                        <i id="theme-icon-mobile" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                    <button id="lang-toggle-mobile" class="bg-emerald-700 text-white px-4 py-1.5 rounded-full font-bold text-xs shadow-sm active:scale-90 transition-transform">
                         <span id="lang-text-mobile">ES</span>
                     </button>
-                    <div class="flex gap-4 text-gray-400">
-                        <button onclick="navigateTo('home')"><i class="fa-solid fa-house"></i></button>
-                        <button onclick="navigateTo('products')"><i class="fa-solid fa-basket-shopping"></i></button>
-                        <button onclick="navigateTo('location')"><i class="fa-solid fa-map-pin"></i></button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -64,53 +150,79 @@
     <main class="flex-grow">
         <!-- PAGE: HOME -->
         <section id="page-home" class="page-content active">
-            <div class="relative h-[550px] flex items-center overflow-hidden">
+            <div class="relative h-[70vh] md:h-[85vh] min-h-[500px] flex items-center overflow-hidden">
                 <div class="absolute inset-0">
-                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1920" class="w-full h-full object-cover brightness-50" alt="Market">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1920" class="w-full h-full object-cover brightness-[0.5]" alt="Market">
                 </div>
-                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-                    <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 drop-shadow-lg leading-tight" data-i18n="hero_welcome">Welcome to Supermercado</h1>
-                    <p class="text-xl text-gray-100 mb-10 max-w-2xl drop-shadow-md" data-i18n="hero_subtitle">Your neighborhood Mexican grocery store. Fresh produce, authentic meats, and imported favorites.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start">
-                        <a href="tel:5551234567" class="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white text-lg font-bold px-8 py-4 rounded-xl shadow-xl transition-transform hover:scale-105">
+                <div class="relative max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 text-center md:text-left">
+                    <h1 class="text-5xl md:text-8xl font-black text-white mb-6 drop-shadow-2xl leading-[1.1] tracking-tighter" data-i18n="hero_welcome">Welcome to Supermercado</h1>
+                    <p class="text-lg md:text-2xl text-gray-200 mb-8 md:mb-10 max-w-2xl mx-auto md:mx-0 drop-shadow-lg font-medium leading-relaxed" data-i18n="hero_subtitle">Your neighborhood Mexican grocery store. Fresh produce, authentic meats, and imported favorites.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <a href="tel:8642361445" class="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white text-lg md:text-xl font-bold px-8 py-4 md:px-10 md:py-5 rounded-2xl shadow-2xl transition-all active:scale-95">
                             <i class="fa-solid fa-phone mr-3"></i>
                             <span data-i18n="hero_call">Call Now</span>
                         </a>
-                        <button onclick="navigateTo('location')" class="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-emerald-800 text-lg font-bold px-8 py-4 rounded-xl shadow-xl transition-transform hover:scale-105">
+                        <button class="nav-to-location inline-flex items-center justify-center bg-white hover:bg-gray-100 text-emerald-800 text-lg md:text-xl font-bold px-8 py-4 md:px-10 md:py-5 rounded-2xl shadow-2xl transition-all active:scale-95">
                             <i class="fa-solid fa-location-dot mr-3"></i>
                             <span data-i18n="loc_directions">Get Directions</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="h-4 flex">
+            
+            <div class="h-3 flex">
                 <div class="flex-1 bg-emerald-600"></div>
                 <div class="flex-1 bg-white"></div>
                 <div class="flex-1 bg-red-600"></div>
             </div>
-            <div class="py-24 bg-white text-center px-4">
-                <h2 class="text-3xl font-bold mb-6" data-i18n="home_extra_title">Freshness in Every Aisle</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8" data-i18n="about_desc">Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home.</p>
-                <button onclick="navigateTo('about')" class="text-emerald-700 font-bold border-b-2 border-emerald-700 hover:text-emerald-800 transition-colors" data-i18n="home_read_more">Read Our Story</button>
+
+            <div class="content-section bg-white dark:bg-zinc-950 text-center px-6 py-20 md:py-32 border-b border-gray-100 dark:border-zinc-900">
+                <h2 class="text-3xl md:text-5xl font-black mb-6 md:mb-8 text-gray-900 dark:text-white tracking-tight" data-i18n="home_extra_title">Freshness in Every Aisle</h2>
+                <p class="text-lg md:text-xl text-gray-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed" data-i18n="about_desc">Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home. We source our products directly to ensure the highest quality for our community.</p>
+                <button class="nav-to-about text-emerald-700 dark:text-emerald-400 font-bold border-b-2 border-emerald-700 dark:border-emerald-400 hover:text-emerald-800 transition-all text-xl md:text-2xl pb-1" data-i18n="home_read_more">Read Our Story</button>
+            </div>
+
+            <!-- Home Page CTA Section -->
+            <div class="bg-emerald-950 text-white py-20 md:py-32 px-6 overflow-hidden relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-red-600/10 blur-[120px] rounded-full"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-600/10 blur-[120px] rounded-full"></div>
+                <div class="max-w-4xl mx-auto text-center relative z-10">
+                    <h2 class="text-4xl md:text-6xl font-black mb-8 tracking-tighter leading-none" data-i18n="home_cta_title">Ready to Experience Authenticity?</h2>
+                    <p class="text-xl md:text-2xl text-emerald-100/80 mb-12 font-medium max-w-2xl mx-auto" data-i18n="home_cta_sub">Stop by today for the freshest ingredients and the best tacos in Greenville.</p>
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <button class="nav-to-location bg-white text-emerald-950 hover:bg-gray-100 font-black text-xl md:text-2xl py-6 px-10 rounded-3xl transition-all shadow-xl shadow-white/5 active:scale-95 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span data-i18n="loc_directions">Get Directions</span>
+                        </button>
+                        <a href="tel:8642361445" class="bg-red-600 hover:bg-red-700 text-white font-black text-xl md:text-2xl py-6 px-10 rounded-3xl transition-all shadow-xl shadow-red-900/20 active:scale-95 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-phone"></i>
+                            <span data-i18n="hero_call">Call Us Now</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- PAGE: ABOUT -->
         <section id="page-about" class="page-content">
-            <div class="bg-emerald-900 py-20 text-white text-center">
-                <h1 class="text-4xl md:text-5xl font-bold" data-i18n="nav_about">About Us</h1>
+            <div class="hero-banner" style="background-image: url('https://images.unsplash.com/photo-1512813195386-6cf811ad3542?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_about">About Us</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-emerald-500 mx-auto rounded-full shadow-lg"></div>
+                </div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-2 gap-16 items-center">
-                    <div class="space-y-8">
-                        <p class="text-xl text-gray-600 leading-relaxed" data-i18n="about_desc_long">Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home. From fresh produce to specialty snacks, we pride ourselves on quality and service.</p>
-                        <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
-                            <p class="text-emerald-900 font-bold italic text-lg" data-i18n="about_values">Family Owned • Community Focused • Authenticity First</p>
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                    <div class="space-y-6 md:space-y-8">
+                        <p class="text-xl md:text-2xl text-gray-700 dark:text-zinc-300 leading-relaxed font-medium" data-i18n="about_desc_long">Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home. From fresh produce to specialty snacks, we pride ourselves on quality and service.</p>
+                        <div class="p-8 md:p-10 bg-emerald-900 dark:bg-emerald-950 text-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl transform hover:-rotate-1 transition-transform border border-emerald-800">
+                            <p class="font-bold italic text-xl md:text-2xl text-center leading-snug" data-i18n="about_values">Family Owned • Community Focused • Authenticity First</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <img src="https://images.unsplash.com/photo-1601598851547-4302969d0614?auto=format&fit=crop&w=600" class="rounded-2xl shadow-lg mt-8 h-64 w-full object-cover" alt="Store">
-                        <img src="https://images.unsplash.com/photo-1543083477-4f7fe1ec2c50?auto=format&fit=crop&w=600" class="rounded-2xl shadow-lg h-64 w-full object-cover" alt="Food">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <img src="https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/531962833_122138434658714117_2273000172015571262_n.jpg?stp=c0.169.1536.1536a_cp6_dst-jpg_s206x206_tt6&_nc_cat=100&ccb=1-7&_nc_sid=92e838&_nc_ohc=2Og5ex8sCE8Q7kNvwEBPh5y&_nc_oc=Adk2glXK-RGnK6DZ23X0mwvObuzu8vG7omMonl9Sbtpn7VRhiVs28IFrQdo47ygSmfmdEWRx4gUfeBZ_Wu7h33WO&_nc_zt=23&_nc_ht=scontent-atl3-1.xx&_nc_gid=cPuHC1DEFTgl0EPdAfvkuQ&oh=00_Aftscr0CogetYi7eAGSwo54H2BAs6AARWxEIZZyANQkMtQ&oe=6984ECE5" class="rounded-[2rem] shadow-xl md:mt-12 h-64 md:h-80 w-full object-cover border-4 md:border-8 border-white dark:border-zinc-800" alt="Supermercado Interior 1">
+                        <img src="https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/531568694_122138434670714117_7872572922459559157_n.jpg?stp=c0.169.1536.1536a_cp6_dst-jpg_s206x206_tt6&_nc_cat=100&ccb=1-7&_nc_sid=92e838&_nc_ohc=aGKF_JyNpYsQ7kNvwG1wn9P&_nc_oc=Adn6zuj0KIEJ_2gUzTxPYFtog7ZRpgRkAgmHCfK71LmakNze1droqMLas-3IN09TKNnJH8-CRGBSF4UGT49g09Nu&_nc_zt=23&_nc_ht=scontent-atl3-1.xx&_nc_gid=cPuHC1DEFTgl0EPdAfvkuQ&oh=00_Afu0EVxj-GirdL2Ub3vzFEixRgzc6xf-HZkYTxcIfsh82A&oe=6984DF7F" class="rounded-[2rem] shadow-xl h-64 md:h-80 w-full object-cover border-4 md:border-8 border-white dark:border-zinc-800" alt="Supermercado Interior 2">
                     </div>
                 </div>
             </div>
@@ -118,105 +230,421 @@
 
         <!-- PAGE: PRODUCTS -->
         <section id="page-products" class="page-content">
-            <div class="bg-red-600 py-20 text-white text-center">
-                <h1 class="text-4xl md:text-5xl font-bold" data-i18n="nav_products">Our Departments</h1>
+            <div class="hero-banner" style="background-image: url('https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_products">Our Departments</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-red-500 mx-auto rounded-full shadow-lg"></div>
+                </div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Cards will be populated or translated via JS -->
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/prod1/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Produce">
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/8446850/pexels-photo-8446850.jpeg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Produce">
                         </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_1_name">Produce</h3>
-                            <p class="text-gray-600" data-i18n="cat_1_desc">Fresh fruits and vegetables delivered daily.</p>
-                        </div>
-                    </div>
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/meatmarket/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Meat">
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_2_name">Meat Market</h3>
-                            <p class="text-gray-600" data-i18n="cat_2_desc">Premium cuts of beef, pork, and chicken.</p>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_1_name">Produce</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_1_desc">Fresh fruits and vegetables delivered daily.</p>
                         </div>
                     </div>
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/bakeryt/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Bakery">
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/485724888_122118430628714117_4727269156918075548_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4x0H7qKwpwMQ7kNvwEnsbda&_nc_oc=AdmGr2MCMK_JZAk3v_OWVr8i8_cWr_sdUP8iw0Yd53UJKQ44-k7pIuMZPsX-O8WBdflY0kN_v7x5u0Fs34UPR6CX&_nc_zt=23&_nc_ht=scontent-atl3-1.xx&_nc_gid=xRiH35CA2XnFuj5Dup2zbg&oh=00_AftYj3GF8HBFF2R321qJ9KeJjIDQ9N8dMcT0mh3KGQrphA&oe=69847EE9" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Meat Market">
                         </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_3_name">Bakery & Tortillas</h3>
-                            <p class="text-gray-600" data-i18n="cat_3_desc">Freshly made tortillas and sweet breads.</p>
-                        </div>
-                    </div>
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/cheese/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Dairy">
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_4_name">Dairy & Cheese</h3>
-                            <p class="text-gray-600" data-i18n="cat_4_desc">Authentic queso fresco and crema.</p>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_2_name">Meat Market</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_2_desc">Premium cuts of beef, pork, and chicken.</p>
                         </div>
                     </div>
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/chips/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Snacks">
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/499382983_122127228878714117_3756052837088915887_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=cO8cqUg1z0gQ7kNvwEY7PIP&_nc_oc=AdmPUNe_jiYUmsH0qrFeQ_ut5r7a2aylv-9Bun5NeUEzg0X08IHA95QKEnMDL10Eo-DoK1MhLkkkAocaMfyIx43v&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=0Kb1zeutkuRtcIPiFbuFZA&oh=00_AftGFZvkGebWxUDjbawB8yWP3KPgxHthcWB_wd-wKpoM9g&oe=69845E52" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Bakery">
                         </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_5_name">Snacks & Drinks</h3>
-                            <p class="text-gray-600" data-i18n="cat_5_desc">Imported Mexican chips, sodas, and candies.</p>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_3_name">Bakery & Tortillas</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_3_desc">Freshly made tortillas and sweet breads.</p>
                         </div>
                     </div>
-                    <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
-                        <div class="h-56 overflow-hidden">
-                            <img src="https://picsum.photos/seed/chilispice/600/400" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Spices">
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/582595817_122148073850714117_1448755981123307699_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=cEVvDtXqGXUQ7kNvwFpljh9&_nc_oc=Adl1ZfZAWm9FPF-b6ZvnY23Al3H6TCiSDQ9FSpV6zULAi9Kgx3tfYUS9R1ZiGi0vgKpa1RTryAENc5FrrpEAt1L5&_nc_zt=23&_nc_ht=scontent-atl3-1.xx&_nc_gid=6JqSSNMoWg6aP48W-Ui7bg&oh=00_AfuMbvNO9QkYGGuRg4MXwoPPpzeC3Yu0FwFKoQu4Tr5BEA&oe=6984D654" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Dairy">
                         </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-700 transition-colors" data-i18n="cat_6_name">Spices & Chiles</h3>
-                            <p class="text-gray-600" data-i18n="cat_6_desc">Everything you need for authentic recipes.</p>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_4_name">Dairy & Cheese</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_4_desc">Authentic queso fresco and crema.</p>
+                        </div>
+                    </div>
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/574498164_122146913708714117_3528804558734017212_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CvEJvR24TGQQ7kNvwGvUPFT&_nc_oc=AdkhItKX-wEakjRMxWx5eONoU3StMM9tgQ-pYMDwAgEvvOf_aHyTtbelVMlfBhItDb_sN8mi8TJ_0Vv-sxpOIXEP&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=UPvC6q064bQwv8hIDzCBIQ&oh=00_AftIZRyEo41iCzldqPH2E2IDv2UbNG8Xtr1MbFqiFLOPwg&oe=69847B93" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Snacks">
+                        </div>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_5_name">Snacks & Drinks</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_5_desc">Imported Mexican chips, sodas, and candies.</p>
+                        </div>
+                    </div>
+                    <div class="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-zinc-800 flex flex-col active:scale-[0.98]">
+                        <div class="h-60 md:h-72 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/8250271/pexels-photo-8250271.jpeg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Spices">
+                        </div>
+                        <div class="p-8 md:p-10 flex-grow">
+                            <h3 class="text-2xl md:text-3xl font-black mb-3 dark:text-white tracking-tighter" data-i18n="cat_6_name">Spices & Chiles</h3>
+                            <p class="text-gray-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed" data-i18n="cat_6_desc">Everything you need for authentic recipes.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: LOCATION -->
-        <section id="page-location" class="page-content">
-            <div class="bg-white py-20 text-emerald-900 border-b border-gray-100 text-center">
-                <h1 class="text-4xl md:text-5xl font-bold" data-i18n="nav_location">Location</h1>
+        <!-- PAGE: TAQUERÍA -->
+        <section id="page-taqueria" class="page-content">
+            <div class="hero-banner" style="background-image: url('https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_taqueria">Taquería</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-red-600 mx-auto rounded-full shadow-lg"></div>
+                    <p class="text-lg md:text-2xl text-gray-200 mt-6 max-w-2xl mx-auto drop-shadow-lg font-medium" data-i18n="taq_hero_sub">Traditional street tacos made fresh in-store.</p>
+                </div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-5 gap-12">
-                    <div class="lg:col-span-2 space-y-8">
-                        <div class="space-y-6">
-                            <div class="flex items-start space-x-4">
-                                <div class="bg-red-50 p-3 rounded-lg"><i class="fa-solid fa-map-location text-red-600 text-xl"></i></div>
-                                <div>
-                                    <h4 class="font-bold text-gray-900 text-lg" data-i18n="loc_addr_title">Address</h4>
-                                    <p class="text-gray-600">123 Market St, Sunshine City, ST 12345</p>
+            
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <!-- Menu Header -->
+                <div class="text-center mb-16 md:mb-24">
+                    <h2 class="text-3xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tighter" data-i18n="taq_menu_title">Our Hot Menu</h2>
+                    <div class="inline-block px-6 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-full font-bold text-sm md:text-base border border-emerald-100 dark:border-emerald-800/50">
+                        <i class="fa-solid fa-star mr-2"></i>
+                        <span data-i18n="taq_addon">Add Mozzarella Cheese to any dish for $0.25</span>
+                    </div>
+                </div>
+                
+                <!-- Menu Categories Grid -->
+                <div class="grid lg:grid-cols-2 gap-12 md:gap-20">
+                    
+                    <!-- CATEGORY: TACOS -->
+                    <div class="space-y-8">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fa-solid fa-fire text-xl"></i></div>
+                            <h3 class="text-3xl md:text-4xl font-black tracking-tighter dark:text-white" data-i18n="taq_tacos_title">Tacos</h3>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 relative group transition-all hover:shadow-xl overflow-hidden">
+                            <!-- Taco Photo Header -->
+                            <div class="h-56 md:h-72 -mx-8 md:-mx-10 -mt-8 md:-mt-10 mb-8 overflow-hidden relative">
+                                <img src="https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/499487108_122127228302714117_482329208181357718_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4pEkob4tC3IQ7kNvwG5yrMH&_nc_oc=AdlsMwKDjSsPP_sc043Gj2JU6gPeZU__xRKf2RrgAs6HIJaxqILvvW6q68whvqvzMXf4unG9nM7ISmhi9CPZecmP&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=-RJ_l9tWWKsm8fkrfBMYPA&oh=00_AftTAPL2qvx0FLAxUBB8h0R-7Cv1A7j80BQTYZCmKHxAtQ&oe=6984C6E7" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Delicious Tacos">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                            </div>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-bold mb-4" data-i18n="taq_tacos_desc">Includes: Onion & Cilantro. With the meat of your choice.</p>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-gray-600 dark:text-zinc-400 font-medium">
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_al_pastor">Al Pastor</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_asada">Asada</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_pollo">Pollo</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_tripa">Tripa</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_birria">Birria</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_carnitas">Carnitas</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_lengua">Lengua</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><span data-i18n="meat_bar_b_q">Barbacoa</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- BURRITOS -->
+                        <div class="flex items-center gap-4 mb-8 pt-8">
+                            <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fa-solid fa-box text-xl"></i></div>
+                            <h3 class="text-3xl md:text-4xl font-black tracking-tighter dark:text-white" data-i18n="taq_burritos_title">Burritos</h3>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 group transition-all hover:shadow-xl overflow-hidden">
+                            <!-- Burrito Photo Header -->
+                            <div class="h-56 md:h-72 -mx-8 md:-mx-10 -mt-8 md:-mt-10 mb-8 overflow-hidden relative">
+                                <img src="https://images.pexels.com/photos/27365284/pexels-photo-27365284.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Authentic Burritos">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                            </div>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-bold mb-4" data-i18n="taq_burritos_desc">Includes: Lettuce, Pico de Gallo, Melted Cheese. With meat of your choice.</p>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-gray-600 dark:text-zinc-400 font-medium">
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_al_pastor">Al Pastor</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_asada">Asada</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_pollo">Pollo</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_tripa">Tripa</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_cabeza">Cabeza</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_carnitas">Carnitas</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="meat_lengua">Lengua</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- SECOND COLUMN -->
+                    <div class="space-y-8">
+                        <!-- QUESADILLAS -->
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fa-solid fa-cheese text-xl"></i></div>
+                            <h3 class="text-3xl md:text-4xl font-black tracking-tighter dark:text-white" data-i18n="taq_quesadillas_title">Quesadillas</h3>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 relative group transition-all hover:shadow-xl overflow-hidden">
+                            <!-- Quesadilla Photo Header -->
+                            <div class="h-56 md:h-72 -mx-8 md:-mx-10 -mt-8 md:-mt-10 mb-8 overflow-hidden relative">
+                                <img src="https://images.pexels.com/photos/5836439/pexels-photo-5836439.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Authentic Quesadillas">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                            </div>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-bold mb-4" data-i18n="taq_quesadillas_desc">Cheese and Meat with choice of:</p>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-gray-600 dark:text-zinc-400 font-medium">
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_al_pastor">Al Pastor</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_asada">Asada</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_pollo">Pollo</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_tripa">Tripa</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_cabeza">Cabeza</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_carnitas">Carnitas</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div><span data-i18n="meat_lengua">Lengua</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- TORTAS -->
+                        <div class="flex items-center gap-4 mb-8 pt-8">
+                            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fa-solid fa-bread-slice text-xl"></i></div>
+                            <h3 class="text-3xl md:text-4xl font-black tracking-tighter dark:text-white" data-i18n="taq_tortas_title">Tortas</h3>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 group transition-all hover:shadow-xl overflow-hidden">
+                            <!-- Torta Photo Header -->
+                            <div class="h-56 md:h-72 -mx-8 md:-mx-10 -mt-8 md:-mt-10 mb-8 overflow-hidden relative">
+                                <img src="https://images.pexels.com/photos/5981144/pexels-photo-5981144.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Authentic Tortas">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                            </div>
+                            <div class="mb-6 pb-6 border-b border-gray-100 dark:border-zinc-800">
+                                <h4 class="font-black text-xl mb-3 dark:text-white" data-i18n="taq_tortas_specialty">Specialty Types</h4>
+                                <div class="flex gap-4">
+                                    <span class="px-4 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-sm font-bold dark:text-zinc-300" data-i18n="torta_cubana">Cubana</span>
+                                    <span class="px-4 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-sm font-bold dark:text-zinc-300" data-i18n="torta_hawaiana">Hawaiana</span>
                                 </div>
                             </div>
-                            <div class="flex items-start space-x-4">
-                                <div class="bg-emerald-50 p-3 rounded-lg"><i class="fa-solid fa-clock text-emerald-600 text-xl"></i></div>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-bold mb-4" data-i18n="taq_tortas_desc">Includes: Lettuce, Mozzarella, Tomato, Avocado. With choice of meat.</p>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-gray-600 dark:text-zinc-400 font-medium">
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_al_pastor">Al Pastor</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_asada">Asada</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_pollo">Pollo</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_bar_b_q">Barbacoa</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_lengua">Lengua</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_cabeza">Cabeza</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_carnitas">Carnitas</span></li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span data-i18n="meat_tripa">Tripa</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXTRA ITEMS -->
+                <div class="mt-20 grid md:grid-cols-2 gap-12">
+                    <!-- SPECIALTIES -->
+                    <div>
+                        <h3 class="text-3xl font-black mb-8 dark:text-white" data-i18n="taq_hot_title">Specialty Dishes</h3>
+                        <div class="space-y-4">
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-emerald-700 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="dish_roast_chicken">Pollo Rostizado – Roast Chicken</span>
+                                <i class="fa-solid fa-utensils opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-emerald-700 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="dish_wings">Fried Wings & Ripe Plantains</span>
+                                <i class="fa-solid fa-drumstick-bite opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- BY THE POUND -->
+                    <div>
+                        <h3 class="text-3xl font-black mb-8 dark:text-white" data-i18n="taq_pound_title">Per Pound</h3>
+                        <div class="space-y-4">
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-red-600 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="meat_barbacoa_beef">Barbacoa de Res – Beef Barbecue</span>
+                                <i class="fa-solid fa-weight-hanging opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-red-600 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="meat_barbacoa_lamb">Barbacoa de Borrego – Lamb Barbecue</span>
+                                <i class="fa-solid fa-weight-hanging opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-red-600 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="meat_carnitas_long">Carnitas – Marinated Pork</span>
+                                <i class="fa-solid fa-weight-hanging opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <div class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 flex justify-between items-center group hover:bg-red-600 hover:text-white transition-all">
+                                <span class="text-lg md:text-xl font-bold" data-i18n="meat_chicharron">Chicharron – Pork Skin</span>
+                                <i class="fa-solid fa-weight-hanging opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-24 md:mt-32 bg-emerald-900 dark:bg-emerald-950 rounded-[2.5rem] md:rounded-[4rem] p-10 md:p-24 text-center text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+                    <h2 class="text-3xl md:text-6xl font-black mb-6 relative z-10" data-i18n="taq_cta_title">Hungry Now?</h2>
+                    <p class="text-lg md:text-2xl text-emerald-100 mb-10 max-w-2xl mx-auto relative z-10 leading-relaxed font-medium" data-i18n="taq_cta_sub">Our Taquería is open for dine-in or take-out during regular store hours. No reservation needed!</p>
+                    <button class="nav-to-location bg-white text-emerald-900 font-black px-10 py-5 md:px-14 md:py-6 rounded-3xl text-xl md:text-2xl active:scale-95 transition-all shadow-xl relative z-10 hover:shadow-2xl hover:-translate-y-1 inline-block" data-i18n="loc_directions">Visit Us Today</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: TESTIMONIALS -->
+        <section id="page-testimonials" class="page-content">
+            <div class="hero-banner" style="background-image: url('https://images.pexels.com/photos/7613568/pexels-photo-7613568.jpeg');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_testimonials">Testimonials</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-emerald-500 mx-auto rounded-full shadow-lg"></div>
+                    <p class="text-lg md:text-2xl text-gray-200 mt-6 max-w-2xl mx-auto drop-shadow-lg font-medium" data-i18n="test_hero_sub">What our community is saying about us.</p>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                    <!-- Raul Arango -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_1_text">"Great place, full of surprises, everything from latin food to great butchery, very friendly people and team."</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-400 font-black">RA</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">Raul Arango</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Truckers Point -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_2_text">"Great store Coustmer service was amazing"</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-700 dark:text-red-400 font-black">TP</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">Truckers Point Repair</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Omar Leopard -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_3_text">"Awesome service great food!!"</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-700 dark:text-orange-400 font-black">OL</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">Omar Leopard</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C. P -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_4_text">"Me & a friend girl went in today and the food was amazing. The people had amazing customer service."</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-400 font-black">CP</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">C. P</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lourdes Landauro -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_5_text">"I love the experience at this store, everything looks great, clean, super good prices and the customer service is the most delightful thing!! 5 start for this store!!!"</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black">LL</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">Lourdes Landauro</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Khiem Nguyen -->
+                    <div class="bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                        <div class="flex text-yellow-500 mb-6 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg md:text-xl text-gray-700 dark:text-zinc-300 font-medium leading-relaxed italic mb-8" data-i18n="test_6_text">"Lovely store, they were really helpful when I asked for help... The produce here is really good and the prices for them and chiles are great."</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-700 dark:text-purple-400 font-black">KN</div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white">Khiem Nguyen</h4>
+                                <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider">Reviewer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial CTA -->
+                <div class="mt-24 bg-red-600 rounded-[2.5rem] md:rounded-[4rem] p-10 md:p-24 text-center text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+                    <h2 class="text-3xl md:text-6xl font-black mb-6 relative z-10" data-i18n="test_cta_title">Loved Your Visit?</h2>
+                    <p class="text-lg md:text-2xl text-red-100 mb-10 max-w-2xl mx-auto relative z-10 leading-relaxed font-medium" data-i18n="test_cta_sub">Share your experience and photos with us on Facebook!</p>
+                    <a href="https://www.facebook.com/profile.php?id=61571423529269" target="_blank" rel="noopener noreferrer" class="bg-white text-red-600 font-black px-10 py-5 md:px-14 md:py-6 rounded-3xl text-xl md:text-2xl active:scale-95 transition-all shadow-xl relative z-10 hover:shadow-2xl hover:-translate-y-1 inline-block">
+                        <i class="fa-brands fa-facebook mr-3"></i>
+                        <span data-i18n="test_cta_btn">Leave a Review</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: LOCATION -->
+        <section id="page-location" class="page-content">
+            <div class="hero-banner" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_location">Find Us</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-yellow-500 mx-auto rounded-full shadow-lg"></div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <div class="grid lg:grid-cols-5 gap-12 lg:gap-16">
+                    <div class="lg:col-span-2 space-y-10">
+                        <!-- Storefront Photo Section -->
+                        <div class="relative group overflow-hidden rounded-[2rem] shadow-2xl border-4 border-white dark:border-zinc-800 transition-transform duration-500 hover:scale-[1.02]">
+                            <img src="https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/496284419_122126406830714117_7184813151052843416_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=scedcwE9kIkQ7kNvwEBb1Nk&_nc_oc=AdndUpOAauNkBfp8Tehy-KDjqEkY2v2KXzwSl9yETly3acMHq6v_tJnlSSO4VcHDvQcD9DrC1Yb9ZDQctNPfJpnA&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=L-iB_kYbsMgwSf7T3AyHhg&oh=00_AfuyyEb-tmwuB8srsOTkmNM8heRn11pURRGosG6pmya_gw&oe=6984E7B8" class="w-full aspect-[4/3] object-cover" alt="Supermercado Storefront">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                        </div>
+
+                        <div class="space-y-8">
+                            <div class="flex items-start space-x-6">
+                                <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl shadow-sm shrink-0"><i class="fa-solid fa-map-location text-red-600 dark:text-red-400 text-2xl"></i></div>
                                 <div>
-                                    <h4 class="font-bold text-gray-900 text-lg" data-i18n="loc_hours_title">Store Hours</h4>
-                                    <p class="text-gray-600 font-medium" data-i18n="loc_hours_ms">Mon - Sat: 8:00 AM - 9:00 PM</p>
-                                    <p class="text-gray-600 font-medium" data-i18n="loc_hours_sun">Sun: 9:00 AM - 7:00 PM</p>
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-xl md:text-2xl mb-1" data-i18n="loc_addr_title">Address</h4>
+                                    <p class="text-gray-600 dark:text-zinc-400 text-lg md:text-xl" data-i18n="loc_addr_text">3039 White Horse Rd., Greenville, SC 29611</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-6">
+                                <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-2xl shadow-sm shrink-0"><i class="fa-solid fa-clock text-emerald-600 dark:text-emerald-400 text-2xl"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-xl md:text-2xl mb-1" data-i18n="loc_hours_title">Store Hours</h4>
+                                    <p class="text-gray-600 dark:text-zinc-400 text-lg md:text-xl font-medium" data-i18n="loc_hours_ms">Everyday</p>
+                                    <p class="text-gray-600 dark:text-zinc-400 text-lg md:text-xl font-medium" data-i18n="loc_hours_sun">8:00 AM - 10:00 PM</p>
                                 </div>
                             </div>
                         </div>
-                        <a href="#" class="w-full inline-flex items-center justify-center bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl hover:bg-emerald-800 transition-colors shadow-lg">
-                            <i class="fa-solid fa-diamond-turn-right mr-3"></i>
-                            <span data-i18n="loc_directions">Get Directions</span>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=3039+White+Horse+Rd+Greenville+SC+29611" target="_blank" class="w-full inline-flex items-center justify-center bg-emerald-700 dark:bg-emerald-600 text-white font-bold px-8 py-4 md:py-5 rounded-[1.2rem] md:rounded-[1.5rem] active:scale-95 transition-all shadow-2xl">
+                            <i class="fa-solid fa-diamond-turn-right mr-3 text-lg md:text-xl"></i>
+                            <span class="text-lg md:text-xl" data-i18n="loc_directions">Get Directions</span>
                         </a>
                     </div>
                     <div class="lg:col-span-3">
-                        <div class="h-[450px] bg-gray-100 rounded-3xl overflow-hidden shadow-inner border-4 border-white flex flex-col items-center justify-center text-gray-400 relative">
-                            <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 24px 24px;"></div>
-                            <i class="fa-solid fa-map-pin text-6xl text-red-500 mb-4 animate-bounce"></i>
-                            <p class="font-bold text-lg text-gray-700" data-i18n="loc_map_placeholder">Google Maps Placeholder</p>
+                        <div class="h-[400px] md:h-[600px] bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl border-4 md:border-8 border-white dark:border-zinc-800 relative group">
+                            <iframe 
+                                class="w-full h-full grayscale-[0.1] contrast-[1.1] dark:invert-[0.9] dark:hue-rotate-[180deg]"
+                                frameborder="0" 
+                                scrolling="no" 
+                                marginheight="0" 
+                                marginwidth="0" 
+                                loading="lazy"
+                                src="https://maps.google.com/maps?q=3039%20White%20Horse%20Rd,%20Greenville,%20SC%2029611&t=&z=16&ie=UTF8&iwloc=&output=embed">
+                            </iframe>
                         </div>
                     </div>
                 </div>
@@ -225,25 +653,29 @@
 
         <!-- PAGE: CONTACT -->
         <section id="page-contact" class="page-content">
-            <div class="bg-emerald-950 py-20 text-white text-center">
-                <h1 class="text-4xl md:text-5xl font-bold" data-i18n="nav_contact">Contact Us</h1>
+            <div class="hero-banner" style="background-image: url('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-overlay"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter drop-shadow-2xl uppercase" data-i18n="nav_contact">Contact Us</h1>
+                    <div class="w-20 md:w-32 h-1 md:h-1.5 bg-blue-500 mx-auto rounded-full shadow-lg"></div>
+                </div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-3 gap-8">
-                    <a href="tel:5551234567" class="flex flex-col items-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all text-center">
-                        <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-phone text-2xl text-red-600"></i></div>
-                        <span class="text-2xl font-bold text-gray-900">(555) 123-4567</span>
-                        <span class="text-gray-500 mt-2" data-i18n="cont_call_sub">Call us anytime</span>
+            <div class="max-w-7xl mx-auto px-6 content-section">
+                <div class="grid md:grid-cols-3 gap-6 md:gap-10">
+                    <a href="tel:8642361445" class="group flex flex-col items-center p-10 md:p-16 bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-2xl active:scale-95 transition-all text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-red-600 group-hover:text-white transition-colors duration-500 shadow-sm"><i class="fa-solid fa-phone text-2xl md:text-3xl"></i></div>
+                        <span class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tighter">(864) 236-1445</span>
+                        <span class="text-gray-500 dark:text-zinc-400 text-base md:text-lg mt-3" data-i18n="cont_call_sub">Call us anytime</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all text-center">
-                        <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-6"><i class="fa-brands fa-whatsapp text-3xl text-emerald-600"></i></div>
-                        <span class="text-2xl font-bold text-gray-900" data-i18n="cont_wa">WhatsApp Us</span>
-                        <span class="text-gray-500 mt-2" data-i18n="cont_wa_sub">Quick text replies</span>
+                    <a href="https://www.facebook.com/profile.php?id=61571423529269" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center p-10 md:p-16 bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-2xl active:scale-95 transition-all text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500 shadow-sm"><i class="fa-brands fa-facebook-f text-3xl md:text-4xl"></i></div>
+                        <span class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tighter" data-i18n="cont_fb">Facebook</span>
+                        <span class="text-gray-500 dark:text-zinc-400 text-base md:text-lg mt-3" data-i18n="cont_fb_sub">News & Special Deals</span>
                     </a>
-                    <a href="mailto:hello@supermercado.com" class="flex flex-col items-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all text-center">
-                        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-envelope text-2xl text-blue-600"></i></div>
-                        <span class="text-2xl font-bold text-gray-900 truncate max-w-full">hello@supermercado.com</span>
-                        <span class="text-gray-500 mt-2" data-i18n="cont_email_sub">Send an inquiry</span>
+                    <a href="mailto:supermercadojalisciense@gmail.com" class="group flex flex-col items-center p-10 md:p-16 bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-2xl active:scale-95 transition-all text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500 shadow-sm"><i class="fa-solid fa-envelope text-2xl md:text-3xl"></i></div>
+                        <span class="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tighter truncate max-w-full">supermercadojalisciense@gmail.com</span>
+                        <span class="text-gray-500 dark:text-zinc-400 text-base md:text-lg mt-3" data-i18n="cont_email_sub">Send an inquiry</span>
                     </a>
                 </div>
             </div>
@@ -251,127 +683,74 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-emerald-950 py-16 text-gray-400">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-12 mb-12">
+    <footer class="bg-emerald-950 dark:bg-zinc-900 py-16 md:py-20 text-gray-400 transition-colors border-t border-emerald-900/50">
+        <div class="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-12 md:gap-16 mb-16">
                 <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center mb-6">
-                        <span class="text-2xl font-extrabold text-emerald-700 tracking-tighter">SUPER</span>
-                        <span class="text-2xl font-extrabold text-red-600 tracking-tighter">MERCADO</span>
+                    <div class="flex items-center gap-3 mb-6 md:mb-8">
+                        <div class="w-9 h-9 bg-emerald-700 dark:bg-emerald-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <i class="fa-solid fa-leaf text-white text-base"></i>
+                        </div>
+                        <div class="flex items-baseline">
+                            <span class="text-xl md:text-2xl font-black tracking-tighter text-white">SUPER</span>
+                            <span class="text-xl md:text-2xl font-black tracking-tighter text-red-500">MERCADO</span>
+                        </div>
                     </div>
-                    <p class="max-w-sm text-gray-400 leading-relaxed" data-i18n="footer_bio">Your favorite neighborhood spot for authentic Mexican products, fresh produce, and quality service.</p>
+                    <p class="max-w-md text-lg md:text-xl text-gray-400 leading-relaxed" data-i18n="footer_bio">Your favorite neighborhood spot for authentic Mexican products, fresh produce, and quality service. Bringing the taste of Mexico to your family every day.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-6" data-i18n="footer_nav_title">Navigation</h4>
-                    <ul class="space-y-4 text-sm">
-                        <li><button onclick="navigateTo('home')" class="hover:text-white transition-colors" data-i18n="nav_home">Home</button></li>
-                        <li><button onclick="navigateTo('about')" class="hover:text-white transition-colors" data-i18n="nav_about">About</button></li>
-                        <li><button onclick="navigateTo('products')" class="hover:text-white transition-colors" data-i18n="nav_products">Products</button></li>
+                    <h4 class="text-white text-lg font-black mb-6 md:mb-8 uppercase tracking-widest" data-i18n="footer_nav_title">Navigation</h4>
+                    <ul class="space-y-4 md:space-y-5 text-lg">
+                        <li><button class="nav-to-home hover:text-white transition-colors" data-i18n="nav_home">Home</button></li>
+                        <li><button class="nav-to-about hover:text-white transition-colors" data-i18n="nav_about">About</button></li>
+                        <li><button class="nav-to-products hover:text-white transition-colors" data-i18n="nav_products">Products</button></li>
+                        <li><button class="nav-to-taqueria hover:text-white transition-colors" data-i18n="nav_taqueria">Taquería</button></li>
+                        <li><button class="nav-to-testimonials hover:text-white transition-colors" data-i18n="nav_testimonials">Testimonials</button></li>
+                        <li><button class="nav-to-location hover:text-white transition-colors" data-i18n="nav_location">Location</button></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-6" data-i18n="nav_contact">Contact</h4>
-                    <ul class="space-y-4 text-sm">
-                        <li class="flex items-center gap-3"><i class="fa-solid fa-phone text-emerald-600"></i> (555) 123-4567</li>
-                        <li class="flex items-center gap-3"><i class="fa-solid fa-envelope text-emerald-600"></i> hello@supermercado.com</li>
+                    <h4 class="text-white text-lg font-black mb-6 md:mb-8 uppercase tracking-widest" data-i18n="nav_contact">Contact</h4>
+                    <ul class="space-y-4 md:space-y-5 text-lg">
+                        <li class="flex items-center gap-4"><i class="fa-solid fa-phone text-emerald-600"></i> (864) 236-1445</li>
+                        <li class="flex items-center gap-4"><i class="fa-solid fa-envelope text-emerald-600"></i> supermercadojalisciense@gmail.com</li>
+                        <li class="flex items-start gap-4"><i class="fa-solid fa-location-dot text-emerald-600 mt-1"></i> <span data-i18n="loc_addr_text">3039 White Horse Rd., Greenville, SC 29611</span></li>
                     </ul>
                 </div>
             </div>
-            <div class="pt-8 border-t border-emerald-900 flex flex-col md:flex-row justify-between items-center gap-6">
-                <p class="text-xs" data-i18n="footer_rights">© 2024 Supermercado. All rights reserved.</p>
-                <div class="flex space-x-6 text-xl">
-                    <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-yelp"></i></a>
+            <div class="pt-10 border-t border-emerald-900/50 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-8">
+                <p class="text-sm opacity-60 font-medium" data-i18n="footer_rights">© 2024 Supermercado. All rights reserved.</p>
+                <div class="flex space-x-6 md:space-x-8 text-2xl">
+                    <a href="https://www.facebook.com/profile.php?id=61571423529269" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-all transform hover:scale-110"><i class="fa-brands fa-facebook"></i></a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- LOGIC -->
-    <script>
-        const translations = {
-            en: {
-                nav_home: 'Home', nav_about: 'About', nav_products: 'Products', nav_location: 'Location', nav_contact: 'Contact',
-                hero_welcome: 'Welcome to Supermercado', hero_subtitle: 'Your neighborhood Mexican grocery store. Fresh produce, authentic meats, and imported favorites.', hero_call: 'Call Now',
-                home_extra_title: 'Freshness in Every Aisle', home_read_more: 'Read Our Story',
-                about_desc: 'Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home.',
-                about_desc_long: 'Supermercado is a family-owned Mexican grocery store dedicated to bringing the authentic taste of Mexico to your home. From fresh produce to specialty snacks, we pride ourselves on quality and service.',
-                about_values: 'Family Owned • Community Focused • Authenticity First',
-                cat_1_name: 'Produce', cat_1_desc: 'Fresh fruits and vegetables delivered daily.',
-                cat_2_name: 'Meat Market', cat_2_desc: 'Premium cuts of beef, pork, and chicken.',
-                cat_3_name: 'Bakery & Tortillas', cat_3_desc: 'Freshly made tortillas and sweet breads.',
-                cat_4_name: 'Dairy & Cheese', cat_4_desc: 'Authentic queso fresco and crema.',
-                cat_5_name: 'Snacks & Drinks', cat_5_desc: 'Imported Mexican chips, sodas, and candies.',
-                cat_6_name: 'Spices & Chiles', cat_6_desc: 'Everything you need for authentic recipes.',
-                loc_addr_title: 'Address', loc_hours_title: 'Store Hours', loc_directions: 'Get Directions',
-                loc_hours_ms: 'Mon - Sat: 8:00 AM - 9:00 PM', loc_hours_sun: 'Sun: 9:00 AM - 7:00 PM',
-                loc_map_placeholder: 'Google Maps Placeholder',
-                cont_call_sub: 'Call us anytime', cont_wa: 'WhatsApp Us', cont_wa_sub: 'Quick text replies', cont_email_sub: 'Send an inquiry',
-                footer_bio: 'Your favorite neighborhood spot for authentic Mexican products, fresh produce, and quality service.',
-                footer_nav_title: 'Navigation', footer_rights: '© 2024 Supermercado. All rights reserved.',
-                lang_btn: 'ES'
-            },
-            es: {
-                nav_home: 'Inicio', nav_about: 'Nosotros', nav_products: 'Productos', nav_location: 'Ubicación', nav_contact: 'Contacto',
-                hero_welcome: 'Bienvenidos a Supermercado', hero_subtitle: 'Tu tienda mexicana del barrio. Frutas frescas, carnes auténticas y tus productos favoritos importados.', hero_call: 'Llamar Ahora',
-                home_extra_title: 'Frescura en cada pasillo', home_read_more: 'Nuestra Historia',
-                about_desc: 'Supermercado es una tienda familiar dedicada a traer el sabor auténtico de México a tu hogar.',
-                about_desc_long: 'Supermercado es una tienda familiar dedicada a traer el sabor auténtico de México a tu hogar. Desde frutas frescas hasta botanas tradicionales, nos enorgullecemos de nuestra calidad y servicio.',
-                about_values: 'Empresa Familiar • Comunidad • Autenticidad',
-                cat_1_name: 'Frutas y Verduras', cat_1_desc: 'Frutas y vegetales frescos todos los días.',
-                cat_2_name: 'Carnicería', cat_2_desc: 'Cortes premium de res, puerco y pollo.',
-                cat_3_name: 'Panadería y Tortillas', cat_3_desc: 'Tortillas calientes y pan dulce recién hecho.',
-                cat_4_name: 'Lácteos y Quesos', cat_4_desc: 'Auténtico queso fresco y cremas.',
-                cat_5_name: 'Botanas y Bebidas', cat_5_desc: 'Papas, refrescos y dulces mexicanos.',
-                cat_6_name: 'Especias y Chiles', cat_6_desc: 'Todo lo necesario para tus recetas auténticas.',
-                loc_addr_title: 'Dirección', loc_hours_title: 'Horario', loc_directions: 'Cómo llegar',
-                loc_hours_ms: 'Lun - Sáb: 8:00 AM - 9:00 PM', loc_hours_sun: 'Dom: 9:00 AM - 7:00 PM',
-                loc_map_placeholder: 'Mapa de Google',
-                cont_call_sub: 'Llámanos cuando quieras', cont_wa: 'WhatsApp', cont_wa_sub: 'Respuestas rápidas', cont_email_sub: 'Envía una consulta',
-                footer_bio: 'Tu lugar favorito para productos mexicanos auténticos, frutas frescas y un servicio de calidad.',
-                footer_nav_title: 'Navegación', footer_rights: '© 2024 Supermercado. Todos los derechos reservados.',
-                lang_btn: 'EN'
-            }
-        };
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border-t border-gray-100 dark:border-zinc-800 px-4 py-2 flex justify-around items-center shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <button class="nav-link-mobile flex flex-col items-center gap-1 p-2 text-zinc-400 mobile-nav-active" data-page="home">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="nav_home">Home</span>
+        </button>
+        <button class="nav-link-mobile flex flex-col items-center gap-1 p-2 text-zinc-400" data-page="products">
+            <i class="fa-solid fa-basket-shopping text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="nav_products">Store</span>
+        </button>
+        <button class="nav-link-mobile flex flex-col items-center gap-1 p-2 text-zinc-400" data-page="taqueria">
+            <i class="fa-solid fa-utensils text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="nav_taqueria">Eats</span>
+        </button>
+        <button class="nav-link-mobile flex flex-col items-center gap-1 p-2 text-zinc-400" data-page="testimonials">
+            <i class="fa-solid fa-star text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="nav_testimonials">Reviews</span>
+        </button>
+        <button class="nav-link-mobile flex flex-col items-center gap-1 p-2 text-zinc-400" data-page="location">
+            <i class="fa-solid fa-map-pin text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider" data-i18n="nav_location">Find</span>
+        </button>
+    </nav>
 
-        let currentLang = 'en';
-
-        function navigateTo(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-            // Show selected page
-            document.getElementById('page-' + pageId).classList.add('active');
-            // Update nav styles
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('text-emerald-700', 'underline', 'underline-offset-8', 'decoration-2');
-                link.classList.add('text-gray-600');
-            });
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'es' : 'en';
-            updateContent();
-        }
-
-        function updateContent() {
-            const strings = translations[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (strings[key]) {
-                    el.innerText = strings[key];
-                }
-            });
-            // Update toggle buttons
-            document.getElementById('lang-text').innerText = currentLang === 'en' ? 'ES' : 'EN';
-            document.getElementById('lang-text-mobile').innerText = currentLang === 'en' ? 'ES' : 'EN';
-            document.documentElement.lang = currentLang;
-        }
-
-        // Initialize content
-        updateContent();
-    </script>
+    <script type="module" src="index.tsx"></script>
 </body>
 </html>
